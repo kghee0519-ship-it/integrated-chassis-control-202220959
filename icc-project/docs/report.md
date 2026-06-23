@@ -54,15 +54,19 @@ A(V_x)=
 $$
 
 $$
-B_\delta=
+B_{\delta}
+=
 \begin{bmatrix}
-C_f/m\\ l_fC_f/I_z
-\end{bmatrix},\qquad
-B_M=
+C_f/m \\
+l_f C_f/I_z
+\end{bmatrix},
+\qquad
+B_M
+=
 \begin{bmatrix}
-0\\
+0 \\
 1/I_z
-\end{bmatrix}.
+\end{bmatrix}
 $$
 
 사용된 일반 차량 파라미터는 $m=1500\,\mathrm{kg}$, $I_z=2500\,\mathrm{kg\,m^2}$, $l_f=1.2\,\mathrm{m}$, $l_r=1.4\,\mathrm{m}$, $C_f=80,000\,\mathrm{N/rad}$, $C_r=85,000\,\mathrm{N/rad}$이다. $V_x=22.22\,\mathrm{m/s}$에서 수치 행렬은 대략
@@ -217,7 +221,7 @@ $$
 
 로 구성하였다. $K_{pv}=500$, $K_{iv}=50$을 사용하고 integral state는 $\pm5000$으로 제한하였다. 등가 질량 $1500\,\mathrm{kg}$과 $LIM.MAX\_JERK$를 사용하여 force command의 변화율도 제한하였다.
 
-고속 handling operating point를 안정화하기 위해 reference speed가 $18$–$25\,\mathrm{m/s}$ 범위일 때 supervisor를 활성화하였다. 차량 속도가 $15.8\,\mathrm{m/s}$보다 높으면 제동을 유지하고 $15.3\,\mathrm{m/s}$ 아래에서 해제하여 $0.5\,\mathrm{m/s}$ hysteresis를 만들었다. 이는 시나리오 ID가 아니라 reference speed를 이용한 operating-point schedule이다.
+고속 handling operating point를 안정화하기 위해 reference speed가 $18\text{--}25\,\mathrm{m/s}$ 범위일 때 supervisor를 활성화하였다.
 
 일반 제동에서 목표 slip은 $\kappa^{*}=-0.09$로 두었다. 각 바퀴별 ABS correction은 다음과 같다.
 
@@ -323,11 +327,16 @@ CTRL.COORD.escFrontRatio  = 0.90;
 
 ### 4.1 P1 시나리오 benchmark — 베이스라인 vs 본인 설계
 
-최종 결과는 `run('scripts/run_icc_benchmark.m')`과 `run('scripts/grade.m')`으로 확인하였다. 모든 시나리오는 14DOF plant, controller OFF/ON 조건에서 실행하였고 적분기는 fixed-step RK4를 사용하였다. 낮을수록 좋은 KPI의 개선율은
+최종 결과는 `run('scripts/run_icc_benchmark.m')`과 `run('scripts/grade.m')`으로 확인하였다. 모든 시나리오는 14DOF plant, controller OFF/ON 조건에서 실행하였고 적분기는 fixed-step RK4를 사용하였다. 
+KPI 개선율은 다음과 같이 계산하였다.
 
-$$
-\Delta\%=\frac{KPI_{OFF}-KPI_{ON}}{|KPI_{OFF}|}\times100
-$$
+```math
+\Delta(\%)
+=
+\frac{\mathrm{KPI}_{\mathrm{ON}}-\mathrm{KPI}_{\mathrm{OFF}}}
+{\mathrm{KPI}_{\mathrm{OFF}}}
+\times 100
+```
 
 으로 계산하였다.
 
