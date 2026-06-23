@@ -13,7 +13,7 @@ SIM.out_rate = 100;     % [Hz] 출력 저장 레이트
 %   'ode15s' : MATLAB stiff solver (BDF) — 저속/포화 영역에서 안정
 %   'rk4'    : 고정 스텝 4차 Runge-Kutta (3DOF/7DOF/14DOF 본래 방식)
 %   'euler'  : 1차 전진 Euler (bicycle 본래 방식, 학습/비교용)
-SIM.solver        = 'ode45';
+SIM.solver        = 'rk4';
 SIM.solver_RelTol = 1e-3;   % ode* 상대 오차 허용치
 SIM.solver_AbsTol = 1e-5;   % ode* 절대 오차 허용치
 
@@ -45,26 +45,76 @@ TIRE.E  = -0.5;    % Curvature factor
 TIRE.mu_peak = 1.0;  % 최대 마찰 계수
 
 %% 제어기 파라미터 — 횡방향 (Lateral)
-CTRL.LAT.Kp     = 1.0;     % 비례 게인
-CTRL.LAT.Ki     = 0.1;     % 적분 게인
-CTRL.LAT.Kd     = 0.05;    % 미분 게인
-CTRL.LAT.intMax = 5.0;     % 적분 안티와인드업 한계 [rad]
+CTRL.LAT.Kp               = 0.30;          % [s] yaw-rate 비례 게인
+CTRL.LAT.Ki               = 0.00;          % 적분 게인 (steady-state bias 억제용, 현재 0)
+CTRL.LAT.Kd               = 0.00;          % 미분 게인 (noise 민감도 때문에 현재 0)
+CTRL.LAT.intMax           = 0.50;          % 적분 안티와인드업 한계
+CTRL.LAT.dFilterTau       = 0.03;          % [s] 미분항 1차 저역통과 시정수
+CTRL.LAT.steerAddMax      = deg2rad(10);   % [rad] AFS 보조 조향 한계
+CTRL.LAT.betaSteerGain    = 0.0;           % [rad/rad] 직접 counter-steer gain
+CTRL.LAT.betaThreshold    = deg2rad(2.0);  % [rad] ESC sideslip 개입 임계
+CTRL.LAT.betaMomentGain   = 5.0e3;         % [Nm/rad] sideslip yaw-moment gain
+CTRL.LAT.yawStabilityLimit= 0.38;          % [rad/s] 안정성 yaw-rate envelope
+CTRL.LAT.yawStabilityGain = 1.20e5;        % [Nm/(rad/s)] envelope 복귀 gain
+CTRL.LAT.yawMomentMax     = 8.0e3;         % [Nm] ESC 요청 yaw moment 제한
+
+% Nonlinear operating-point schedule (severe lateral maneuver)
+CTRL.LAT.wheelbase               = VEH.L;
+CTRL.LAT.understeerGradientModel = (VEH.mass*VEH.lr)/(2*VEH.Cf*VEH.L) - ...
+                                      (VEH.mass*VEH.lf)/(2*VEH.Cr*VEH.L);
+CTRL.LAT.highAuthorityThreshold  = deg2rad(8.0);
+CTRL.LAT.highKp                  = -0.20;
+CTRL.LAT.highKi                  = 0.00;
+CTRL.LAT.highKd                  = 0.00;
+CTRL.LAT.highSteerAddMax         = deg2rad(7.0);
+CTRL.LAT.highBetaThreshold       = deg2rad(2.5);
+CTRL.LAT.highBetaMomentGain      = 4.00e5;
+CTRL.LAT.highYawStabilityLimit   = 0.58;
+CTRL.LAT.highYawStabilityGain    = 2.00e5;
+CTRL.LAT.highYawMomentMax        = 1.00e4;
+CTRL.LAT.brakeBlendThreshold     = deg2rad(3.0);
+CTRL.LAT.brakeScaleDuringTurn    = 0.54;
 
 %% 제어기 파라미터 — 종방향 (Longitudinal)
-CTRL.LON.Kp     = 0.5;     % 비례 게인
-CTRL.LON.Ki     = 0.05;    % 적분 게인
-CTRL.LON.intMax = 2000;    % 적분 안티와인드업 한계 [Nm]
+CTRL.LON.Kp               = 500;           % [N/(m/s)] 속도 PI 비례 게인
+CTRL.LON.Ki               = 50;            % [N/m] 속도 PI 적분 게인
+CTRL.LON.intMax           = 5000;          % 적분 안티와인드업 한계
+CTRL.LON.massEq           = 1500;          % [kg] force/jerk 제한용 등가 질량
+CTRL.LON.absTarget        = -0.09;          % [-] 최대 종력 부근 목표 슬립
+CTRL.LON.absKp            = 1.20e4;         % [Nm/slip] per-wheel ABS 비례 게인
+CTRL.LON.absKi            = 4.00e4;         % [Nm/(slip*s)] per-wheel ABS 적분 게인
+CTRL.LON.absReleaseMax    = 2500;           % [Nm] 최대 brake release correction
+CTRL.LON.absAddMax        = 1800;           % [Nm] 최대 brake add correction
+CTRL.LON.absEnableAx      = -0.50;          % [m/s^2] ABS event latch 조건
+CTRL.LON.absResetAx       = -0.05;          % [m/s^2] ABS latch 해제 조건
+CTRL.LON.absSlipTrigger   = -0.02;          % [-] axle braking 감지 임계
+
+% High-speed stability supervisor and associated ABS schedule
+CTRL.LON.stabilityBandMin        = 18.0;            % [m/s]
+CTRL.LON.stabilityBandMax        = 25.0;            % [m/s]
+CTRL.LON.stabilitySpeedCap       = 15.3;            % [m/s]
+CTRL.LON.stabilitySpeedHysteresis= 0.5;             % [m/s]
+CTRL.LON.stabilityBrakePerWheel  = 3000;            % [Nm]
+CTRL.LON.stabilityAbsTarget      = -0.05;
+CTRL.LON.stabilityAbsKp          = 3.00e4;
+CTRL.LON.stabilityAbsKi          = 7.00e4;
+CTRL.LON.stabilityAbsResetAx     = -0.30;            % [m/s^2]
+CTRL.LON.suppressResetAx         = -0.30;            % [m/s^2]
+CTRL.LON.suppressResetSlip       = -0.04;
 
 %% 제어기 파라미터 — 수직 (Vertical / CDC)
-CTRL.VER.cMin    = 500;    % [Ns/m] 최소 감쇠 계수
-CTRL.VER.cMax    = 5000;   % [Ns/m] 최대 감쇠 계수
-CTRL.VER.skyGain = 2500;   % [Ns/m] Skyhook 게인
+CTRL.VER.cMin             = 500;            % [Ns/m] 최소 감쇠 계수
+CTRL.VER.cMax             = 5000;           % [Ns/m] 최대 감쇠 계수
+CTRL.VER.skyGain          = 2500;           % [Ns/m] Skyhook 게인
+CTRL.VER.filterTau        = 0.02;           % [s] damping command smoothing
 
 %% 제어기 파라미터 — 통합 조율기 (Coordinator)
-CTRL.COORD.wLat  = 1.0;    % 횡방향 가중치
-CTRL.COORD.wLon  = 1.0;    % 종방향 가중치
-CTRL.COORD.wVer  = 0.5;    % 수직 가중치
-CTRL.COORD.wEff  = 0.1;    % 에너지 효율 가중치
+CTRL.COORD.wLat           = 1.0;            % 횡방향 가중치
+CTRL.COORD.wLon           = 1.0;            % 종방향 가중치
+CTRL.COORD.wVer           = 0.5;            % 수직 가중치
+CTRL.COORD.wEff           = 0.1;            % 에너지 효율 가중치
+CTRL.COORD.frontBrakeBias = 0.58;           % 종방향 제동 전륜 배분 비율
+CTRL.COORD.escFrontRatio  = 0.90;           % ESC yaw moment 전륜 배분 비율
 
 %% 액추에이터 한계
 LIM.MAX_STEER_ANGLE = deg2rad(540 / 15);  % [rad] 최대 로드휠 조향각 (SW 540deg / ratio 15)
