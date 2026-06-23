@@ -33,27 +33,27 @@
 
 2DOF bicycle model의 상태와 입력은
 
-$$
+```math
  x=\begin{bmatrix}v_y&r\end{bmatrix}^{T},\qquad u=\delta
-$$
+```
 
 로 정의하였다. 여기서 $v_y$는 차체 횡속도, $r$은 yaw rate, $\delta$는 road-wheel steering angle이다. 상태방정식은
 
-$$
+```math
 \dot{x}=A(V_x)x+B_\delta\delta+B_M M_z,\qquad y=Cx+Du
-$$
+```
 
 이며,
 
-$$
+```math
 A(V_x)=
 \begin{bmatrix}
 -\dfrac{C_f+C_r}{mV_x} & \dfrac{l_rC_r-l_fC_f}{mV_x}-V_x \\
 \dfrac{l_rC_r-l_fC_f}{I_zV_x} & -\dfrac{l_f^2C_f+l_r^2C_r}{I_zV_x}
 \end{bmatrix},
-$$
+```
 
-$$
+```math
 B_{\delta}
 =
 \begin{bmatrix}
@@ -67,11 +67,11 @@ B_M
 0 \\
 1/I_z
 \end{bmatrix}
-$$
+```
 
 사용된 일반 차량 파라미터는 $m=1500\,\mathrm{kg}$, $I_z=2500\,\mathrm{kg\,m^2}$, $l_f=1.2\,\mathrm{m}$, $l_r=1.4\,\mathrm{m}$, $C_f=80,000\,\mathrm{N/rad}$, $C_r=85,000\,\mathrm{N/rad}$이다. $V_x=22.22\,\mathrm{m/s}$에서 수치 행렬은 대략
 
-$$
+```math
 A=
 \begin{bmatrix}
 -4.950 & -21.532\\
@@ -83,43 +83,43 @@ B_{\delta}=
 53.333\\
 38.400
 \end{bmatrix}
-$$
+```
 
 
 이다. Side-slip angle은 small-angle 영역에서 $\beta\simeq v_y/V_x$로 근사하였다.
 
 정상상태 yaw-rate reference는 understeer gradient를 포함하여
 
-$$
+```math
 K_{us}=\frac{ml_r}{2C_fL}-\frac{ml_f}{2C_rL},\qquad
 r_{ref}=\frac{V_x\delta_d}{L+K_{us}V_x^2}
-$$
+```
 
 로 계산하였다. 제어기에서는 반대로
 
-$$
+```math
 \hat\delta_d=r_{ref}\frac{L+K_{us}V_x^2}{V_x}
-$$
+```
 
 를 사용하여 추정 운전자 조향각을 얻고, 이를 normal/high-authority mode를 구분하는 scheduling 변수로 사용하였다.
 
 종방향 slip ratio는
 
-$$
+```math
 \kappa_i=\frac{R_w\omega_i-V_{x,i}}{\max(|V_{x,i}|,\epsilon)}
-$$
+```
 
 로 정의하였다. 제동 시 $\kappa_i<0$이며 바퀴 회전동역학은
 
-$$
+```math
 I_w\dot\omega_i=R_wF_{x,i}-T_{b,i}
-$$
+```
 
 로 나타낼 수 있다. 속도 제어는
 
-$$
+```math
 F_{x,cmd}=K_{pv}(V_{x,ref}-V_x)+K_{iv}\int(V_{x,ref}-V_x)dt
-$$
+```
 
 로 구성하였고, 최대 jerk를 고려하여 force command의 sample 간 변화량을 제한하였다.
 
@@ -149,20 +149,22 @@ $$
 
 Yaw-rate error는
 
-$$e_r=r_{ref}-r$$
+```math
+e_r=r_{ref}-r
+```
 
 로 정의하였다. 정상 operating point에서 AFS 보조 조향은
 
-$$
+```math
 \delta_{AFS}=\mathrm{sat}\left[g_v(V_x)
 \left(K_pe_r+K_i\int e_rdt+K_d\dot e_r\right)-K_{\beta s}\beta\right]
-$$
+```
 
 로 계산하였다. 속도 schedule은
 
-$$
+```math
 g_v(V_x)=\mathrm{sat}_{[0.45,1.35]}\left(\frac{V_x}{20}\right)
-$$
+```
 
 이다. 초기에는 PI와 PID gain을 함께 시험했으나, 적분항은 operating point 전환 시 누적 오차를 만들고 미분항은 yaw-rate 변화와 수치 noise에 민감하였다. A3에서 P 제어만으로도 과도응답 목표를 충분히 만족하여 최종 normal mode는 $K_p=0.30$, $K_i=K_d=0$으로 정하였다.
 
@@ -170,10 +172,10 @@ $$
 
 ESC yaw moment는 yaw-rate와 side-slip envelope 초과량을 이용해
 
-$$
+```math
 M_z=-K_r\left(r-\mathrm{sat}_{[-r_{lim},r_{lim}]}(r)\right)
 -K_\beta\mathrm{sgn}(\beta)(|\beta|-\beta_{th})_+
-$$
+```
 
 로 계산하였다. 정상 모드에서는 $\beta_{th}=2.0^\circ$, $r_{lim}=0.38\,\mathrm{rad/s}$를 사용하고, high-authority mode에서는 $\beta_{th}=2.5^\circ$, $r_{lim}=0.58\,\mathrm{rad/s}$를 사용하였다. 작은 정상상태 선회에서는 envelope 안에 있으므로 ESC가 거의 개입하지 않고, A7과 D1처럼 차량이 불안정해질 때만 큰 yaw moment를 발생시킨다.
 
@@ -215,9 +217,9 @@ CTRL.LAT.highYawMomentMax        = 1.0e4;
 
 속도 PI는
 
-$$
+```math
 F_{x,cmd}=K_{pv}e_v+K_{iv}\int e_vdt,\qquad e_v=V_{x,ref}-V_x
-$$
+```
 
 로 구성하였다. $K_{pv}=500$, $K_{iv}=50$을 사용하고 integral state는 $\pm5000$으로 제한하였다. 등가 질량 $1500\,\mathrm{kg}$과 $LIM.MAX\_JERK$를 사용하여 force command의 변화율도 제한하였다.
 
@@ -268,16 +270,16 @@ CTRL.LON.stabilityAbsKi         = 7.00e4;
 
 각 corner에서 damper relative velocity를
 
-$$
+```math
 \dot z_{rel,i}=\dot z_{s,i}-\dot z_{u,i}
-$$
+```
 
 로 정의하였다. $\dot z_{s,i}\dot z_{rel,i}>0$이면 높은 damping이 sprung-mass 운동을 억제하는 방향이므로
 
-$$
+```math
 c_i^*=\mathrm{sat}_{[c_{min},c_{max}]}
 \left(c_{sky}\frac{|\dot z_{s,i}|}{\max(|\dot z_{rel,i}|,\epsilon)}\right)
-$$
+```
 
 를 사용하고, 그 외에는 $c_{min}$을 사용하였다. 최종 command에는 $\tau=0.02\,\mathrm{s}$ 1차 필터를 적용하였다.
 
@@ -296,21 +298,23 @@ Coordinator는 AFS steering, longitudinal common braking, high-speed supervisor 
 
 종방향 braking force는 wheel radius를 이용해 총 torque로 변환한다.
 
-$$T_{b,total}=-F_xR_w$$
+```math
+T_{b,total}=-F_xR_w
+```
 
 전후 배분은 58:42로 설정하여
 
-$$
+```math
 T_{FL}=T_{FR}=0.58\frac{T_{b,total}}{2},\qquad
 T_{RL}=T_{RR}=0.42\frac{T_{b,total}}{2}
-$$
+```
 
 로 계산하였다. ESC yaw moment는 전륜 90%, 후륜 10%로 나누고 half-track을 lever arm으로 사용하였다.
 
-$$
+```math
 T_f=\frac{|M_z|\alpha_fR_w}{t_f/2},\qquad
 T_r=\frac{|M_z|(1-\alpha_f)R_w}{t_r/2},\qquad \alpha_f=0.90
-$$
+```
 
 $M_z>0$이면 왼쪽 wheel에, $M_z<0$이면 오른쪽 wheel에 제동 torque를 추가하는 one-sided differential braking을 적용하였다. 종방향 torque, supervisor torque, ABS correction, ESC torque를 모두 합한 후 wheel당 $\pm3000\,\mathrm{N\,m}$로 saturation하였다. ABS correction의 음수값은 nominal braking torque를 줄이는 release command로 해석하였다.
 
@@ -337,8 +341,6 @@ KPI 개선율은 다음과 같이 계산하였다.
 {\mathrm{KPI}_{\mathrm{OFF}}}
 \times 100
 ```
-
-
 
 | 시나리오 | KPI | OFF | ON (본인) | Δ% |
 |---|---|---:|---:|---:|
@@ -370,7 +372,7 @@ A1에서 최대 경로 이탈은 $1.8270\,\mathrm{m}$에서 $0.6455\,\mathrm{m}$
 
 ![A1 side-slip angle](figures/report/a1_sideslip.png)
 
-*Figure 4.2 — A1 side-slip angle. Controller ON은 최대 side-slip을 $2.0777^\circ$로 제한한다.*
+*Figure 4.2 — A1 side-slip angle. Controller ON은 최대 side-slip을 2.0777°로 제한한다.*
 
 A1의 side-slip은 31.1%, LTR은 31.3% 감소하였다. 다만 benchmark에서 tire utilization maximum은 OFF 0.9994에서 ON 1.1000으로 증가하였다. 이는 경로 추종 성능을 확보하기 위해 더 많은 tire force를 사용했음을 의미한다.
 
@@ -378,7 +380,7 @@ A1의 side-slip은 31.1%, LTR은 31.3% 감소하였다. 다만 benchmark에서 t
 
 ![A7 side-slip angle](figures/report/a7_sideslip.png)
 
-*Figure 4.3 — A7 brake-in-turn side-slip. OFF 차량은 제동 후 side-slip이 발산하지만 ON은 약 $\pm3^\circ$ 안에 유지된다.*
+*Figure 4.3 — A7 brake-in-turn side-slip. OFF 차량은 제동 후 side-slip이 발산하지만 ON은 약 ±3° 안에 유지된다.*
 
 ![A7 ESC yaw moment](figures/report/a7_yaw_moment.png)
 
