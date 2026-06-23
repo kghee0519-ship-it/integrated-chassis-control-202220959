@@ -221,16 +221,16 @@ $$
 
 일반 제동에서 목표 slip은 $\kappa^{*}=-0.09$로 두었다. 각 바퀴별 ABS correction은 다음과 같다.
 
-$$
+```math
 \Delta T_{b,i}
 =
 K_{p\kappa}\left(\kappa_i-\kappa^{*}\right)
 +
 K_{i\kappa}\int
 \left(\kappa_i-\kappa^{*}\right)\,dt
-$$
+```
 
-이때 $K_{p\kappa}=1.2\times10^4$, $K_{i\kappa}=4.0\times10^4$를 사용하였다. High-speed supervisor가 활성화된 경우에는 목표 slip $-0.05$와 더 큰 gain $(3.0\times10^4,7.0\times10^4)$을 사용하였다. 감속도와 같은 축의 두 바퀴 slip을 동시에 확인하여 ABS를 latch하고, supervisor 제동 해제 직후에는 적분기를 초기화하여 불필요한 재-latch를 막았다.
+이때 $K_{p\kappa}=1.2\times10^{4}$, $K_{i\kappa}=4.0\times10^{4}$를 사용하였다. High-speed supervisor가 활성화된 경우에는 목표 slip $-0.05$와 더 큰 gain $(3.0\times10^4,7.0\times10^4)$을 사용하였다. 감속도와 같은 축의 두 바퀴 slip을 동시에 확인하여 ABS를 latch하고, supervisor 제동 해제 직후에는 적분기를 초기화하여 불필요한 재-latch를 막았다.
 
 **최종 게인 + 정당화**
 
