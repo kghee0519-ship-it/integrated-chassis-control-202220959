@@ -60,14 +60,17 @@ C_f/m\\ l_fC_f/I_z
 \end{bmatrix},\qquad
 B_M=
 \begin{bmatrix}
-0\\1/I_z
+0\\
+1/I_z
 \end{bmatrix}.
 $$
 
 사용된 일반 차량 파라미터는 $m=1500\,\mathrm{kg}$, $I_z=2500\,\mathrm{kg\,m^2}$, $l_f=1.2\,\mathrm{m}$, $l_r=1.4\,\mathrm{m}$, $C_f=80,000\,\mathrm{N/rad}$, $C_r=85,000\,\mathrm{N/rad}$이다. $V_x=22.22\,\mathrm{m/s}$에서 수치 행렬은 대략
 
 $$
-A=\begin{bmatrix}-4.950&-21.532\\0.414&-5.072\end{bmatrix},\qquad
+A=\begin{bmatrix}-4.950&-21.532\\
+0.414&-5.072
+\end{bmatrix},\qquad
 B_\delta=\begin{bmatrix}53.333\\38.400\end{bmatrix}
 $$
 
@@ -139,14 +142,14 @@ $$e_r=r_{ref}-r$$
 로 정의하였다. 정상 operating point에서 AFS 보조 조향은
 
 $$
-\delta_{AFS}=\operatorname{sat}\left[g_v(V_x)
+\delta_{AFS}=\mathrm{sat}\left[g_v(V_x)
 \left(K_pe_r+K_i\int e_rdt+K_d\dot e_r\right)-K_{\beta s}\beta\right]
 $$
 
 로 계산하였다. 속도 schedule은
 
 $$
-g_v(V_x)=\operatorname{sat}_{[0.45,1.35]}\left(\frac{V_x}{20}\right)
+g_v(V_x)=\mathrm{sat}_{[0.45,1.35]}\left(\frac{V_x}{20}\right)
 $$
 
 이다. 초기에는 PI와 PID gain을 함께 시험했으나, 적분항은 operating point 전환 시 누적 오차를 만들고 미분항은 yaw-rate 변화와 수치 noise에 민감하였다. A3에서 P 제어만으로도 과도응답 목표를 충분히 만족하여 최종 normal mode는 $K_p=0.30$, $K_i=K_d=0$으로 정하였다.
@@ -156,8 +159,8 @@ $$
 ESC yaw moment는 yaw-rate와 side-slip envelope 초과량을 이용해
 
 $$
-M_z=-K_r\left(r-\operatorname{sat}_{[-r_{lim},r_{lim}]}(r)\right)
--K_\beta\operatorname{sgn}(\beta)(|\beta|-\beta_{th})_+
+M_z=-K_r\left(r-\mathrm{sat}_{[-r_{lim},r_{lim}]}(r)\right)
+-K_\beta\mathrm{sgn}(\beta)(|\beta|-\beta_{th})_+
 $$
 
 로 계산하였다. 정상 모드에서는 $\beta_{th}=2.0^\circ$, $r_{lim}=0.38\,\mathrm{rad/s}$를 사용하고, high-authority mode에서는 $\beta_{th}=2.5^\circ$, $r_{lim}=0.58\,\mathrm{rad/s}$를 사용하였다. 작은 정상상태 선회에서는 envelope 안에 있으므로 ESC가 거의 개입하지 않고, A7과 D1처럼 차량이 불안정해질 때만 큰 yaw moment를 발생시킨다.
@@ -211,8 +214,8 @@ $$
 일반 제동에서 목표 slip은 $\kappa^*=-0.09$로 두었다. 각 바퀴별 ABS correction은
 
 $$
-\Delta T_{b,i}=K_{p\kappa}(\kappa_i-\kappa^*)+
-K_{i\kappa}\int(\kappa_i-\kappa^*)dt
+\Delta T_{b,i}=K_{p\kappa}(\kappa_i-\kappa^*{*})+
+K_{i\kappa}\int(\kappa_i-\kappa^*{*})dt
 $$
 
 이며 $K_{p\kappa}=1.2\times10^4$, $K_{i\kappa}=4.0\times10^4$를 사용하였다. High-speed supervisor가 활성화된 경우에는 목표 slip $-0.05$와 더 큰 gain $(3.0\times10^4,7.0\times10^4)$을 사용하였다. 감속도와 같은 축의 두 바퀴 slip을 동시에 확인하여 ABS를 latch하고, supervisor 제동 해제 직후에는 적분기를 초기화하여 불필요한 재-latch를 막았다.
@@ -256,7 +259,7 @@ $$
 로 정의하였다. $\dot z_{s,i}\dot z_{rel,i}>0$이면 높은 damping이 sprung-mass 운동을 억제하는 방향이므로
 
 $$
-c_i^*=\operatorname{sat}_{[c_{min},c_{max}]}
+c_i^*=\mathrm{sat}_{[c_{min},c_{max}]}
 \left(c_{sky}\frac{|\dot z_{s,i}|}{\max(|\dot z_{rel,i}|,\epsilon)}\right)
 $$
 
