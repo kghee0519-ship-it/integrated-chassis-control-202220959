@@ -68,11 +68,19 @@ $$
 사용된 일반 차량 파라미터는 $m=1500\,\mathrm{kg}$, $I_z=2500\,\mathrm{kg\,m^2}$, $l_f=1.2\,\mathrm{m}$, $l_r=1.4\,\mathrm{m}$, $C_f=80,000\,\mathrm{N/rad}$, $C_r=85,000\,\mathrm{N/rad}$이다. $V_x=22.22\,\mathrm{m/s}$에서 수치 행렬은 대략
 
 $$
-A=\begin{bmatrix}-4.950&-21.532\\
-0.414&-5.072
-\end{bmatrix},\qquad
-B_\delta=\begin{bmatrix}53.333\\38.400\end{bmatrix}
+A=
+\begin{bmatrix}
+-4.950 & -21.532\
+0.414 & -5.072
+\end{bmatrix},
+\qquad
+B_{\delta}=
+\begin{bmatrix}
+53.333\
+38.400
+\end{bmatrix}
 $$
+
 
 이다. Side-slip angle은 small-angle 영역에서 $\beta\simeq v_y/V_x$로 근사하였다.
 
@@ -211,12 +219,19 @@ $$
 
 고속 handling operating point를 안정화하기 위해 reference speed가 $18$–$25\,\mathrm{m/s}$ 범위일 때 supervisor를 활성화하였다. 차량 속도가 $15.8\,\mathrm{m/s}$보다 높으면 제동을 유지하고 $15.3\,\mathrm{m/s}$ 아래에서 해제하여 $0.5\,\mathrm{m/s}$ hysteresis를 만들었다. 이는 시나리오 ID가 아니라 reference speed를 이용한 operating-point schedule이다.
 
-일반 제동에서 목표 slip은 $\kappa^*=-0.09$로 두었다. 각 바퀴별 ABS correction은
+일반 제동에서 목표 slip은 $\kappa^{*}=-0.09$로 두었다. 각 바퀴별 ABS correction은
 
 $$
-\Delta T_{b,i}=K_{p\kappa}(\kappa_i-\kappa^*{*})+
-K_{i\kappa}\int(\kappa_i-\kappa^*{*})dt
+\Delta T_{b,i}
+
+
+K_{p\kappa}\left(\kappa_i-\kappa^{*}\right)
++
+K_{i\kappa}\int
+\left(\kappa_i-\kappa^{*}\right),dt
 $$
+
+
 
 이며 $K_{p\kappa}=1.2\times10^4$, $K_{i\kappa}=4.0\times10^4$를 사용하였다. High-speed supervisor가 활성화된 경우에는 목표 slip $-0.05$와 더 큰 gain $(3.0\times10^4,7.0\times10^4)$을 사용하였다. 감속도와 같은 축의 두 바퀴 slip을 동시에 확인하여 ABS를 latch하고, supervisor 제동 해제 직후에는 적분기를 초기화하여 불필요한 재-latch를 막았다.
 
